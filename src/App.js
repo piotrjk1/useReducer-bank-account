@@ -32,39 +32,37 @@ const initialState = {
   isActive: false,
 };
 
+function reducer(state, action) {
+  if (!state.isActive && action.type !== "openAccount") return state;
+  switch (action.type) {
+    case "openAccount":
+      return { ...state, balance: 500, isActive: true };
+    case "closeAccount":
+      if (state.balance === 0) {
+        return { ...initialState };
+      }
+      return state;
+    case "deposit":
+      return { ...state, balance: state.balance + action.payload };
+    case "withdraw":
+      return { ...state, balance: state.balance - action.payload };
+    case "requestLoan":
+      if (state.loan === 0) {
+        return { ...state, balance: state.balance + 5000, loan: 5000 };
+      }
+      return state;
+    case "payLoan":
+      if (state.loan > 0) {
+        return { ...state, balance: state.balance - state.loan, loan: 0 };
+      }
+      return state;
+    default:
+      throw new Error("Unknown");
+  }
+}
+
 export default function App() {
   const [state, dispatch] = useReducer(reducer, initialState);
-
-  function reducer(state, action) {
-    // if (state.isActive === false) {
-    //   return { initialState };
-    // }
-    switch (action.type) {
-      case "openAccount":
-        return { ...state, balance: 500, isActive: true };
-      case "closeAccount":
-        if (state.balance === 0) {
-          return { ...initialState };
-        }
-        return state;
-      case "deposit":
-        return { ...state, balance: state.balance + 150 };
-      case "withdraw":
-        return { ...state, balance: state.balance - 50 };
-      case "requestLoan":
-        if (state.loan === 0) {
-          return { ...state, balance: state.balance + 5000, loan: 5000 };
-        }
-        return state;
-      case "payLoan":
-        if (state.loan > 0) {
-          return { ...state, balance: state.balance - 5000, loan: 0 };
-        }
-        return state;
-      default:
-        throw new Error("Unknown");
-    }
-  }
 
   return (
     <div className="App">
@@ -82,7 +80,7 @@ export default function App() {
       </p>
       <p>
         <button
-          onClick={() => dispatch({ type: "deposit" })}
+          onClick={() => dispatch({ type: "deposit", payload: 150 })}
           disabled={!state.isActive}
         >
           Deposit 150
@@ -90,7 +88,7 @@ export default function App() {
       </p>
       <p>
         <button
-          onClick={() => dispatch({ type: "withdraw" })}
+          onClick={() => dispatch({ type: "withdraw", payload: 50 })}
           disabled={!state.isActive}
         >
           Withdraw 50
